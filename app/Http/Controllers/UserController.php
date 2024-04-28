@@ -28,20 +28,20 @@ class UserController extends Controller
     {
         $error = [];
         $user = $request->role !== 'member' ?
-            Employee::where($request->email_or_username_selected, $request->email_or_username_result)->first() :
-            Member::where($request->email_or_username_selected, $request->email_or_username_result)->first();
+            Employee::where($request->usernameOrEmail, $request->usernameOrEmailResult)->first() :
+            Member::where($request->usernameOrEmail, $request->usernameOrEmailResult)->first();
 
         if ($user) {
             if (Hash::check($request->password, $user->password)) {
                 if ($request->role !== 'member')
                     Employee::where(
-                        $request->email_or_username_selected,
-                        $request->email_or_username_result
+                        $request->usernameOrEmail,
+                        $request->usernameOrEmailResult
                     )->update(['status' => 1]);
                 else
                     Member::where(
-                        $request->email_or_username_selected,
-                        $request->email_or_username_result
+                        $request->usernameOrEmail,
+                        $request->usernameOrEmailResult
                     )->update(['status' => 1]);
 
                 $token = $user->createToken(Str::random(10))->accessToken;
@@ -70,29 +70,37 @@ class UserController extends Controller
     public function profile()
     {
         $user = auth()->user();
-        $address = Employee::find($user->id);
-        $adrs = [
-            $address->address . ', ' .
-                $address->sub_district->name_th . ', ' .
-                $address->sub_district->district->name_th . ', ' .
-                $address->sub_district->district->province->name_th . ', ' .
-                $address->sub_district->post_code,
-            $address->address . ', ' .
-                $address->sub_district->name_en . ', ' .
-                $address->sub_district->district->name_en . ', ' .
-                $address->sub_district->district->province->name_en . ', ' .
-                $address->sub_district->post_code
-        ];
 
         $profile = [
-            'Firstname' =>  $user->firstname,
-            'Lastname' => $user->lastname,
-            'Username'  => $user->username,
-            'Email' => $user->email,
-            'Phone' => $user->phone,
-            'Role' => $this->emp_role[$user->role],
-            'Gender' => $this->gender[$user->sex],
-            'Address' => $adrs
+            'profile' => [
+                'firstname' =>  $user->firstname,
+                'lastname' => $user->lastname,
+                'username'  => $user->username,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
+                'gender' => $user->sex
+            ],
+            'address' => [
+                'address' => $user->address,
+                'region' => [
+                    'th' => $user->sub_district->district->province->region->name_th,
+                    'en' => $user->sub_district->district->province->region->name_en
+                ],
+                'province' => [
+                    'th' => $user->sub_district->district->province->name_th,
+                    'en' => $user->sub_district->district->province->name_en
+                ],
+                'district' => [
+                    'th' => $user->sub_district->district->name_th,
+                    'en' => $user->sub_district->district->name_en
+                ],
+                'sub_district' => [
+                    'th' => $user->sub_district->name_th,
+                    'en' => $user->sub_district->name_en,
+                    'code' => $user->sub_district->post_code
+                ]
+            ]
         ];
 
         return response()->json(['profile' => $profile]);
@@ -102,6 +110,13 @@ class UserController extends Controller
     // Request: Employee|Member Data, Token
     // Response: User Profile
     public function update(Request $request)
+    {
+    }
+
+    // method: GET
+    // Request: none
+    // Response: Region, Province, District, Sub district data
+    public function getAllAddress()
     {
     }
 
