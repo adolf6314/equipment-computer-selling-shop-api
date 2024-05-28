@@ -23,11 +23,11 @@ class Employee extends Seeder
             'password'=>Hash::make('123456'),
             'phone'=>'0123456789',
             'role'=>'0',
-            'sex'=>'M',
+            'sex'=>'0',
             'work_status'=>'1',
             'status'=>'0',
             'address'=>'AdolfHeat City',
-            'sub_dist_id'=>'1',
+            'sub_dist_id'=>'0',
         ]);
     }
 }

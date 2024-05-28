@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateUserRequest;
 use App\Models\Employee;
 use App\Models\Member;
-use App\Models\Sub_District;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class UserController extends Controller
+class UserController
 {
     // method: POST
     // Request: Member|Employee Data
@@ -73,37 +74,51 @@ class UserController extends Controller
 
         $profile = [
             'profile' => [
-                'firstname' =>  $user->firstname,
+                'firstname' => $user->firstname,
                 'lastname' => $user->lastname,
-                'username'  => $user->username,
+                'username' => $user->username,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role' => $user->role,
                 'gender' => $user->sex
-            ],
-            'address' => [
-                'address' => $user->address,
-                'region' => [
-                    'th' => $user->sub_district->district->province->region->name_th,
-                    'en' => $user->sub_district->district->province->region->name_en
-                ],
-                'province' => [
-                    'th' => $user->sub_district->district->province->name_th,
-                    'en' => $user->sub_district->district->province->name_en
-                ],
-                'district' => [
-                    'th' => $user->sub_district->district->name_th,
-                    'en' => $user->sub_district->district->name_en
-                ],
-                'sub_district' => [
-                    'th' => $user->sub_district->name_th,
-                    'en' => $user->sub_district->name_en,
-                    'code' => $user->sub_district->post_code
-                ]
             ]
         ];
 
-        return response()->json(['profile' => $profile]);
+        if ($user->role !== null)
+            $profile['profile']['role'] = $user->role;
+        if ($user->sub_dist_id !== null)
+            $profile['address'] = [
+                'address'
+            ];
+
+        // $profile = [
+        //     'profile' => [
+        //         'firstname' =>  $user->firstname,
+        //         'lastname' => $user->lastname,
+        //         'username'  => $user->username,
+        //         'email' => $user->email,
+        //         'phone' => $user->phone,
+        //         'role' => $user->role,
+        //         'gender' => $user->sex
+        //     ],
+        //     'address' => [
+        //         'address' => [$user->address],
+        //         'region' => [
+        //             $user->sub_district->district->province->region
+        //         ],
+        //         'province' => [
+        //             $user->sub_district->district->province
+        //         ],
+        //         'district' => [
+        //             $user->sub_district->district
+        //         ],
+        //         'sub_district' => [
+        //             $user->sub_district
+        //         ],
+        //         'post_code' => [$user->sub_district->post_code]
+        //     ]
+        // ];
+
+        return response()->json($profile);
     }
 
     // method: PUT
@@ -113,11 +128,32 @@ class UserController extends Controller
     {
     }
 
+    // method: PUT
+    // Request: Employee|Member Address Data, Token
+    // Response: successful | failed
+    public function updateAddress(Request $request)
+    {
+        Log::info($request);
+    }
+
     // method: GET
     // Request: none
     // Response: Region, Province, District, Sub district data
     public function getAllAddress()
     {
+        $address = Region::all();
+
+        foreach ($address as $adr) {
+            foreach ($adr->provinces as $province) {
+                foreach ($province->districts as $district) {
+                    foreach ($district->sub_districts as $sub_district) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return response()->json(['address' => $address]);
     }
 
     // method: DELETE

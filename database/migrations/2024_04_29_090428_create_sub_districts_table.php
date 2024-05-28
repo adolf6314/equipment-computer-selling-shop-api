@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name_th', 100);
             $table->char('post_code', 5);
             $table->string('dist_id', 4);
+            $table->foreign('post_code')->references('id')->on('post_codes')->onDelete('cascade');
             $table->foreign('dist_id')->references('id')->on('districts')->onDelete('cascade');
         });
     }

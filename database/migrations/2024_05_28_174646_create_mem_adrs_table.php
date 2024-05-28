@@ -11,20 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('members', function (Blueprint $table) {
-            $table->string('id', 10)->primary();
-            $table->string('firstname', 100);
-            $table->string('lastname', 100);
-            $table->string('username', 100);
-            $table->string('email', 100);
-            $table->string('password', 70);
-            $table->char('phone', 10);
-            $table->char('sex', 1);
-            $table->char('theme', 1);
+        Schema::create('mem_adrs', function (Blueprint $table) {
+            $table->string('mem_id', 10);
             $table->string('address', 100);
-            $table->char('status', 1);
             $table->string('sub_dist_id', 5);
+            $table->foreign('mem_id')->references('id')->on('members')->onDelete('cascade');
             $table->foreign('sub_dist_id')->references('id')->on('sub_districts')->onDelete('cascade');
+            $table->primary(['mem_id', 'sub_dist_id']);
         });
     }
 
@@ -33,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('members');
+        Schema::dropIfExists('mem_adrs');
     }
 };

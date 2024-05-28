@@ -22,6 +22,11 @@ class Sub_District extends Model
 
     public $timestamps = false;
 
+    public function post_code()
+    {
+        return $this->belongsTo(Post_Code::class, 'id');
+    }
+
     public function district()
     {
         return $this->belongsTo(District::class, 'id');
